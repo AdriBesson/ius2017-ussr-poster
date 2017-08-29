@@ -1,0 +1,124 @@
+\vbox to \myposterheight{%
+%----------------------------------------------------------------------------------------
+%	OBJECTIVES
+%----------------------------------------------------------------------------------------
+
+\begin{block}{Introduction and objectives}
+	\begin{enumerate}
+		\item Ultrafast ultrasound~(US) imaging uses unfocused waves to insonify the whole field-of-view at once
+		\item We present USSR: An UltraSound Sparse Regularization framework which provides:
+		\begin{itemize}
+			\item Matrix-free and highly parallel formulations of the measurement and its adjoint in the context of plane-wave~(PW) imaging
+			\item Sparse regularization algorithm with two sparsity priors: $\ell_p$-norm to the power of $p$~($p \geq q$), $\ell_1$-norm in a sparsity averaging~(SA) model
+		\end{itemize}
+		\item USSR provides a fast, high-quality and low memory-footprint image reconstruction method
+	\end{enumerate}
+	
+\end{block}
+\vfill
+%----------------------------------------------------------------------------------------
+%	Notations
+%----------------------------------------------------------------------------------------
+
+\begin{block}{Notations and model}
+	
+	\begin{columns} % Subdivide the first main column
+		\begin{column}{.48\textwidth} % The first subdivided column within the first main column
+			\begin{itemize}
+				\item Notations:
+				\begin{itemize}
+					\item 1D probe composed of $N_{el}$ transducer elements located at $\vec{p}^i \in \Pi$ recording samples at time instants $t^l = t^0 + l \Delta t$, with $l \in \left\lbrace 1,...,N_t \right\rbrace$
+					\item $m\left(\vec{p}^i, t^l\right)$ signal received at time instant $t^l$ by element located at $\vec{p}^i$
+					\item $v_{pe} \left(t\right)$ pulse-shape of the experiment
+					\item Medium $\Omega$ composed of points located at $\vec{r}^n=\left[x^k, z^l\right]^T$, $\left(k, l\right) \in \left\lbrace 1,..,N_x\right\rbrace \times \left\lbrace 1,..,N_z\right\rbrace$ and $n=(k-1)N_z + l$
+					\item Each point characterized by its tissue-reflectivity function $\reflectivity\left(\vec{r}^n\right)$
+				\end{itemize}
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{.52\textwidth} % The second subdivided column within the first main column
+			\centering
+			\begin{figure}
+				{\footnotesize
+				\input{figures/tikz_fig_continuous}}
+				%\includegraphics[width=0.9\linewidth]{tikz_SPARS-crop.pdf}
+				\caption{Standard setting for US imaging}
+			\end{figure}
+		\end{column}
+	\end{columns} % End of the subdivision
+	
+	\begin{itemize}
+		\item Pulse-echo spatial impulse response model~\cite{Stepanishen1971}
+		\begin{equation}
+		\label{eq_rawdata}
+		m\left(\vec{p}^i, t^l\right)  = \int \limits_{\vec{r} \in \Omega} o_d \left(\vec{r}, \vec{p}^i\right) \reflectivity \left(\vec{r}\right) \nonumber v_{pe} \left(t^l - t_{Tx} \left(\vec{r}\right) - t_{Rx} \left( \vec{r}, \vec{p}^i \right) \right)  d\vec{r},
+		\end{equation} 
+		$t_{Tx} \left(\vec{r}\right)$ propagation delay on transmit, $t_{Rx} \left( \vec{r}, \vec{p}^i  \right) = \twonorm{\vec{r} - \vec{p}^i} / c$ propagation delay on receive and $o_d \left(\vec{r}, \vec{p}^i\right) = o \left(\vec{r}, \vec{p}^i\right) / 2 \pi \twonorm{\vec{r} - \vec{p}^i}$ where $o \left(\vec{r}, \vec{p}^i\right)$ accounts for the element directivity~\cite{Selfridge1980}
+	\end{itemize}
+\end{block}
+\vfill 
+%----------------------------------------------------------------------------------------
+%	PARAMETRIC FORMULATION OF THE MODEL
+%----------------------------------------------------------------------------------------
+\begin{block}{Parametric formulation of the model}
+\begin{itemize}
+	\item Equation~\eqref{eq_rawdata} can be written as:
+	\begin{align}
+	\label{eq_inv_problem_cont_domain}
+	m\left(\vec{p}^i, t^l\right) &= \iint \limits_{ \tau \in \R, \vec{r} \in \Gamma\left(\vec{p}^i, \tau\right)} \frac{o_d\left(\vec{r}, \vec{p}^i\right)\reflectivity \left(\vec{r}\right)}{\mid \nabla_{\vec{r}} g \mid} d \sigma \left(\vec{r}\right) v_{pe} \left(t^l - \tau\right) d \tau \nonumber \\
+	&= \mathcal{H}\left\lbrace \reflectivity\right\rbrace \left(\vec{p}^i, t^l\right) 
+	\end{align}
+	$g\left(\vec{r}, \vec{p}^i, t\right) = t - t_{Tx} \left(\vec{r}\right) - t_{Rx} \left(\vec{r}, \vec{p}^i\right)$, $\Gamma \left(\vec{p}^i, t \right) = \left\lbrace \vec{r} \in \Omega \; | \; g\left(\vec{r}, \vec{p}^i, t \right) = 0 \right\rbrace$, $\nabla_{\vec{r}} g$ denotes the gradient of $g$ w.r.t $\vec{r}$, $d\sigma \left(\vec{r}\right)$ is the measure over the 1D-curve $\Gamma \left(\vec{p}^i, t \right)$
+	\item To have an efficient way of calculating the integral defined in Equation~\eqref{eq_inv_problem_cont_domain}, we derive a parameterization of $\Gamma \left(\vec{p}^i, t \right)$ as follows:
+	\begin{equation}
+	\label{eq_param_equation_generic}
+	\vec{r} = \left[x, z\right]^T \in \Gamma \left(\vec{p}^i, t \right) \Leftrightarrow \vec{r}\left(\alpha, \vec{p}^i, t\right)= \left[\alpha, f\left(\alpha, \vec{p}^i, t \right)\right]^T, \; \alpha \in \R
+	\end{equation}
+	\item This leads us to the parametric formulation of the model
+	\begin{multline}
+	\label{eq_inv_problem_cont_domain_parameterized}
+	m\left(\vec{p}^i, t^l\right) = \iint \limits_{\tau \in \R, \alpha \in \R} o_d\left(\vec{r}\left(\alpha, \vec{p}^i, t^l\right), \vec{p}^i\right)\reflectivity \left(\vec{r}\left(\alpha, \vec{p}^i, t^l\right)\right) \\ \frac{\mid J_\alpha \mid}{\mid \nabla_{\vec{r}} g \mid} d\alpha v_{pe} \left(t^l - \tau\right) d \tau, 
+	\end{multline}
+	$|J_\alpha|$ Jacobian associated with the change of variable
+\end{itemize}	
+\end{block}
+\vfill
+%----------------------------------------------------------------------------------------
+%	PARAMETRIC EQUATIONS - PLANE WAVE IMAGING
+%----------------------------------------------------------------------------------------
+\begin{block}{Parametric equations for plane wave imaging}
+	\begin{itemize}
+		\item Parametric equations obtained by finding the roots of the following function:
+		\begin{align}
+		f \left(z\right) = \sqrt{\left(x-p^i_x\right)^2 + \left(z-p^i_z\right)^2} + z \cos\left(\theta\right)  + x \sin\left(\theta\right) - ct,
+		\end{align}
+		which gives the following solution:
+		\begin{align}
+		z = \frac{1}{\sin \left(\theta\right)^2} \left(p^i_z - ct \cos \left(\theta\right) + x \sin \left(\theta\right) \cos \left(\theta\right) \pm \sqrt{\Delta} \right),
+		\end{align}
+		\begin{align*}
+		\Delta = \left(ct-p^i_z \cos \left(\theta\right) - p^i_x \sin \left(\theta\right) \right)\left(ct-p^i_z \cos \left(\theta\right) + \left(p^i_x -2 x\right) \sin \left(\theta\right) \right).
+		\end{align*}
+	\end{itemize}
+\end{block}
+%----------------------------------------------------------------------------------------
+%	DISCRETIZATION OF THE MODEL
+%----------------------------------------------------------------------------------------
+\begin{block}{Dicretization of the model}
+	\begin{itemize}
+		\item Equation~\eqref{eq_inv_problem_cont_domain_parameterized} is discretized as
+		\begin{align}
+		\label{eq_inv_problem_dist_domain_parameterized}
+		m\left(\vec{p}^i, t^l\right) = \mathcal{H}_d \left\lbrace \vec{\reflectivity}\right\rbrace\left(\vec{p}^i, t^l\right) =  \left(\tilde{\vec{m}}\left(\vec{p}^i\right) \ast_t \vec{v_{pe}}\right) \left(t^l\right), 
+		\end{align}
+		where $\ast_t$ is the \num{1}D-convolution and $\tilde{\vec{m}}\left(\vec{p}^i\right) = \left(\tilde{m}\left(\vec{p}^i, t^l\right)\right)_{t^l \in T_d}$ defined by:
+		\begin{align}
+		\label{eq_m_tilde}
+		\tilde{m}\left(\vec{p}^i, t^l\right) = \sum \limits_{k = 1}^{N_x} w^k o_d\left(\vec{r}\left(\alpha^k, \vec{p}^i, t^l\right), \vec{p}^i\right) \varphi \left(\vec{r}\left(\alpha^k, \vec{p}^i, t^l\right)\right) \vec{\reflectivity}, 
+		\end{align}
+		where $w^k$ is the integration weight and $\varphi$ is a \num{1}D-interpolation kernel
+	\end{itemize}
+\end{block}
+
+%----------------------------------------------------------------------------------------
+}%

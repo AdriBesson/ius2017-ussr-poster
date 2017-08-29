@@ -1,0 +1,148 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Signal Processing Laboratory (LTS5) - EPFL      %
+% LaTeX beamposter template                       %
+% Authors:                                        %
+%   D. Perdios – dimitris.perdios@epfl.ch         %
+%   A. Besson – adrien.besson@epfl.ch             %
+% v0.1 - 08.05.17                                 %
+% Typeset configuration: pdfLaTeX + Biber         %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+% New command used to create a blank column
+
+\newcommand{\AddBlankColumn}[1]{
+	\begin{column}{#1}\end{column}
+}
+
+%%% SIZES OF THE MARGINS AND COLUMNS
+
+%%% CUSTOM MAKETITLE COMMAND %%%
+\newlength{\LogoWidthLeft}
+\settowidth{\LogoWidthLeft}{\includegraphics[height=\LogoHeight]{logos/lts5_logo.pdf}}
+\newlength{\LogoWidthRight}
+\settowidth{\LogoWidthRight}{\includegraphics[height=\LogoHeight]{logos/epfl_logo.pdf}}
+\setlength{\titlewidth}{\LeftColumnWidth + \RightColumnWidth + \BlankColumnWidthCenter- \LogoWidthLeft - \LogoWidthRight - \BlankColumnWidthLeft-\BlankColumnWidthRight}
+\newsavebox{\titlebox}
+\newlength{\myposterheight}
+\renewcommand{\maketitle}{%
+	\savebox{\titlebox}{%
+		\hspace{\BlankColumnWidthLeft}
+		\begin{minipage}{\LogoWidthLeft}%
+			\includegraphics[height=\LogoHeight]{logos/basp_logo.png}
+			\vspace{\LogoSkip}
+			\centering
+			\includegraphics[height=\LogoHeight]{logos/lts5_logo.pdf}
+		\end{minipage} 
+		\begin{minipage}{\titlewidth}%
+			\centering
+			\LARGE\inserttitle \leavevmode\\%
+			\normalsize\insertauthor \leavevmode\\%
+			\small\insertinstitute %
+		\end{minipage} 
+		\begin{minipage}{\LogoWidthRight}%
+			\includegraphics[height=\LogoHeight]{logos/epfl_logo.pdf}
+			\vspace{\LogoSkip}
+			\centering
+			\includegraphics[height=\LogoHeight]{logos/lts5_logo.pdf}
+		\end{minipage}
+		\hspace{\BlankColumnWidthRight}
+	}%
+	\settoheight{\titleheight}{\usebox{\titlebox}}
+	\setlength{\myposterheight}{0.97\textheight - \titleheight - \TitleColumnSpace}
+	\usebox{\titlebox}
+}
+
+% Typesetting
+%\newcommand{\keywords}[1]{\noindent\textbf{Keywords:} #1}
+
+% Math
+\newcommand*{\abs}[1][]{\left\lvert#1\right\rVert}
+\newcommand*{\norm}[2][]{\left\lVert#2\right\rVert_{#1}}
+\newcommand*{\zeronorm}[1]{\norm[0]{#1}}
+\newcommand*{\onenorm}[1]{\norm[1]{#1}}
+\newcommand*{\twonorm}[1]{\norm[2]{#1}}
+\newcommand*{\twoonenorm}[1]{\norm[2,1]{#1}}
+\newcommand*{\fronorm}[1]{\norm[F]{#1}}
+\newcommand*{\infnorm}[1]{\norm[\infty]{#1}}
+\newcommand*{\pnorm}[1]{\norm[p]{#1}}
+\newcommand*{\tvnorm}[1]{\norm[TV]{#1}}
+
+% Sets
+\newcommand*{\C}{\mathbb{C}}
+\newcommand*{\R}{\mathbb{R}}
+\newcommand*{\Q}{\mathbb{Q}}
+\newcommand*{\Z}{\mathbb{Z}}
+\newcommand*{\N}{\mathbb{N}}
+
+% argmin, argmax, ...
+\DeclareMathOperator*{\argmin}{argmin} % the star-version allows to have limit typeset bellow
+\DeclareMathOperator*{\argmax}{argmax} % the star-version allows to have limit typeset bellow
+% Matrix, vector, transpose, adjoint, ...
+\newcommand*{\mat}[1]{\mathsf{#1}}
+\newcommand*{\adjmat}[1]{\mathsf{#1}^T}
+\renewcommand*{\vec}[1]{\bm{#1}}
+\newcommand*{\tran}{^\mathsf{T}}
+%\newcommand*{\tran}{^\intercal}
+%\newcommand*{\tran}{^{\scriptscriptstyle\top}}
+%\newcommand*{\tran}{\mkern-1mu{}_{}^{\scriptscriptstyle\top}\mkern-4mu}
+\newcommand*{\conj}{^*}
+\newcommand*{\adj}{^\dagger}
+% Function, functional, ...
+\newcommand*{\fun}[1]{#1}
+\newcommand*{\funal}[1]{\mathcal{#1}}
+% Transform, Dictionary, ...
+\newcommand*{\dict}{\mat{D}}
+\newcommand*{\transf}{\mat{\Psi}}
+% Such that, subject to,...
+\newcommand*{\suchthat}{\mid}
+\newcommand*{\subjectto}{\,\,\mathrm{s.t.}\,\,}
+\newcommand{\ser}[2]{#1^#2}
+
+% US specific
+\newcommand*{\medium}{\Omega}
+\newcommand*{\transducer}{\Pi}
+\newcommand*{\reflectivity}{\gamma}
+\newcommand*{\rawdata}{m}
+\newcommand*{\eaimpulseresp}{\fun{h_{el-ac}}}
+\newcommand*{\excitation}{\fun{e}}
+\newcommand*{\htx}{\fun{h_{Tx}}}
+\newcommand*{\hrx}{\fun{h_{Rx}}}
+\newcommand*{\pewavelet}{\fun{v_{pe}}}
+\newcommand*{\eldir}{o}
+\newcommand*{\wavelength}{\lambda}
+\newcommand*{\noise}{n}
+
+% Citations and referencs
+%\newcommand*{\myciteauthor}[1]{\citeauthor{#1}~\cite{#1}}
+
+% Latin expressions
+% 	.\@ -> abbretiation period (for correct spacing)
+\newcommand{\etc}{etc.\xspace}
+\newcommand{\ie}{i.e.\@\xspace} % i.e. should NOT be italicized
+\newcommand{\eg}{e.g.\@\xspace} % e.g. should NOT be italicized
+\newcommand{\etal}{\textit{et al.\@}\xspace}
+\newcommand*{\vs}{vs.\@\xspace}
+\newcommand{\invitro}{\textit{in vitro}\xspace}
+\newcommand{\Invitro}{\textit{In vitro}\xspace}
+\newcommand{\invivo}{\textit{in vivo}\xspace}
+\newcommand{\exvivo}{\textit{ex vivo}\xspace}
+\newcommand{\Invivo}{\textit{In vivo}\xspace}
+
+% Others
+\newcommand{\xmark}{x\xspace}
+\newcommand*{\tabhighlight}[1]{\textbf{#1}}
+%\newcommand{\cmark}{\ding{51}}%
+\newcommand*{\notavail}{\textcolor{red}{$\bigotimes$}}
+%\newcommand{\notavail}{\textcolor{red}{\ding{53}}}%
+
+% Specific abbreviations
+\newcommand{\IIS}{ETHZ--IIS}
+\newcommand{\LTS}{EPFL--LTS5}
+\newcommand{\CSEM}{CSEM}
+\newcommand{\USTOGO}{US2GO}
+\newcommand{\nanotera}{Nano--Tera}
+\newcommand{\Leleven}{L\num{11}-\num{4}v\xspace}
+\newcommand{\Ltwelve}{L\num{12}-\num{5}~\num{50}mm\xspace}
+
+
