@@ -5,13 +5,21 @@
 
 \begin{block}{Introduction and objectives}
 	\begin{enumerate}
-		\item Ultrafast ultrasound~(US) imaging uses unfocused waves to insonify the whole field-of-view at once
-		\item We present USSR: An UltraSound Sparse Regularization framework composed of:
+		\item Ultrafast ultrasound~(US) imaging uses unfocused waves, such as plane waves~(PW), to insonify the whole field-of-view at once
 		\begin{itemize}
-			\item Matrix-free and highly parallel formulations of the measurement and its adjoint in the context of plane-wave~(PW) imaging
-			\item Sparse regularization algorithm with two sparsity priors: $\ell_p$-norm to the power of $p$~($p \geq 1$), $\ell_1$-norm in a sparsity averaging~(SA) model
+			\item High frame rate
+			\item Degraded image quality
 		\end{itemize}
-		\item USSR provides a fast, high-quality and low-memory-footprint image reconstruction method
+		\item Sparse regularization~(SR) methods permit reconstruction of high quality images but involve
+		\begin{itemize}
+			\item Storage of huge matrices $\rightarrow$ high-memory footprint
+			\item Iterative algorithms $\rightarrow$ slow
+		\end{itemize}
+		\item We present USSR: An UltraSound Sparse Regularization framework, a fast, high-quality and low-memory-footprint image reconstruction method
+		\begin{itemize}
+			\item Parallel matrix-free formulations of the measurement and its adjoint for PW imaging
+			\item SR algorithm with two sparsity priors: $\ell_p$-norm to the power of $p$~($p \geq 1$), $\ell_1$-norm in a sparsity averaging~(SA) model
+		\end{itemize}
 	\end{enumerate}
 	
 \end{block}
@@ -52,7 +60,7 @@
 		\begin{align}
 			m\left(\vec{p}^i, t^l\right)  = \int \limits_{\vec{r} \in \Omega} o_d \left(\vec{r}, \vec{p}^i\right) \reflectivity \left(\vec{r}\right) \nonumber v_{pe} \left(t^l - t_{Tx} \left(\vec{r}\right) - t_{Rx} \left( \vec{r}, \vec{p}^i \right) \right)  d\vec{r}
 		\end{align} 
-		$t_{Tx} \left(\vec{r}\right)$ propagation delay on transmit, $t_{Rx} \left( \vec{r}, \vec{p}^i  \right) = \twonorm{\vec{r} - \vec{p}^i} / c$ propagation delay on receive and $o_d \left(\vec{r}, \vec{p}^i\right) = o \left(\vec{r}, \vec{p}^i\right) / 2 \pi \twonorm{\vec{r} - \vec{p}^i}$ where $o \left(\vec{r}, \vec{p}^i\right)$ accounts for the element directivity
+		$t_{Tx} \left(\vec{r}\right)$ propagation time on transmit, $t_{Rx} \left( \vec{r}, \vec{p}^i  \right) = \twonorm{\vec{r} - \vec{p}^i} / c$ propagation time on receive and $o_d \left(\vec{r}, \vec{p}^i\right) = o \left(\vec{r}, \vec{p}^i\right) / 2 \pi \twonorm{\vec{r} - \vec{p}^i}$ where $o \left(\vec{r}, \vec{p}^i\right)$ accounts for the element directivity
 	\end{itemize}
 \end{block}
 \vfill 
@@ -61,14 +69,14 @@
 %----------------------------------------------------------------------------------------
 \begin{block}{Parametric formulation of the model}
 \begin{itemize}
-	\item The model can be written as:
+	\item The model can be written as
 	\begin{align}
 	\label{eq_inv_problem_cont_domain}
 		m\left(\vec{p}^i, t^l\right) &= \iint \limits_{ \tau \in \R, \vec{r} \in \Gamma\left(\vec{p}^i, \tau\right)} \frac{o_d\left(\vec{r}, \vec{p}^i\right)\reflectivity \left(\vec{r}\right)}{\mid \nabla_{\vec{r}} g \mid} d \sigma \left(\vec{r}\right) v_{pe} \left(t^l - \tau\right) d \tau \nonumber \\
 		&= \mathcal{H}\left\lbrace \reflectivity\right\rbrace \left(\vec{p}^i, t^l\right) 
 	\end{align}
-	$g\left(\vec{r}, \vec{p}^i, t\right) = t - t_{Tx} \left(\vec{r}\right) - t_{Rx} \left(\vec{r}, \vec{p}^i\right)$, $\Gamma \left(\vec{p}^i, t \right) = \left\lbrace \vec{r} \in \Omega \; | \; g\left(\vec{r}, \vec{p}^i, t \right) = 0 \right\rbrace$, $\nabla_{\vec{r}} g$ denotes the gradient of $g$ w.r.t $\vec{r}$, $d\sigma \left(\vec{r}\right)$ is the measure over the 1D-curve $\Gamma \left(\vec{p}^i, t \right)$
-	\item To have an efficient way of calculating the integral defined in Equation~\eqref{eq_inv_problem_cont_domain}, we derive a parameterization of $\Gamma \left(\vec{p}^i, t \right)$ as follows:
+	$g\left(\vec{r}, \vec{p}^i, t\right) = t - t_{Tx} \left(\vec{r}\right) - t_{Rx} \left(\vec{r}, \vec{p}^i\right)$, $\Gamma \left(\vec{p}^i, t \right) = \left\lbrace \vec{r} \in \Omega \; | \; g\left(\vec{r}, \vec{p}^i, t \right) = 0 \right\rbrace$, $\nabla_{\vec{r}} g$ denotes the gradient of $g$ w.r.t. $\vec{r}$, $d\sigma \left(\vec{r}\right)$ is the measure over $\Gamma \left(\vec{p}^i, t \right)$
+	\item We derive a parameterization of $\Gamma \left(\vec{p}^i, t \right)$
 	\begin{equation}
 	\label{eq_param_equation_generic}
 	\vec{r} = \left[x, z\right]^T \in \Gamma \left(\vec{p}^i, t \right) \Leftrightarrow \vec{r}\left(\alpha, \vec{p}^i, t\right)= \left[\alpha, f\left(\alpha, \vec{p}^i, t \right)\right]^T, \; \alpha \in \R
@@ -93,7 +101,7 @@
 		\end{align}
 		which gives the following solution:
 		\begin{align}
-		z = \frac{1}{\sin \left(\theta\right)^2} \left(p^i_z - ct \cos \left(\theta\right) + x \sin \left(\theta\right) \cos \left(\theta\right) \pm \sqrt{\Delta} \right)
+		z = \sin \left(\theta\right)^{-2} \left(p^i_z - ct \cos \left(\theta\right) + x \sin \left(\theta\right) \cos \left(\theta\right) \pm \sqrt{\Delta} \right)
 		\end{align}
 		\begin{align*}
 		\Delta = \left(ct-p^i_z \cos \left(\theta\right) - p^i_x \sin \left(\theta\right) \right)\left(ct-p^i_z \cos \left(\theta\right) + \left(p^i_x -2 x\right) \sin \left(\theta\right) \right)

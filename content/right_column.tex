@@ -43,19 +43,19 @@
 %----------------------------------------------------------------------------------------
 %	IMPLEMENTATION OF USSR
 %----------------------------------------------------------------------------------------
-\begin{block}{Implementation of USSR}
+\begin{block}{Implementation and performance of USSR}
 	\begin{itemize}
-		\item USSR implemented on GPU platforms and on multi-threaded CPU platforms
+		\item USSR is implemented on GPU and multi-threaded CPU platforms
 		\item \num{200} iterations of the fast iterative shrinkage thresholding algorithm used for reconstruction 
 		\item Reconstructions of images from PICMUS dataset~(1 PW insonification) take around \SI{4.5}{\second} on an NVIDIA Titan X GPU card
-		\item Code available on GitHub: \url{https://github.com/LTS5/USSR}
+		\item Reproducible code available on GitHub: \url{https://github.com/LTS5/USSR}
 	\end{itemize}
 \end{block}
+\vfill
 %----------------------------------------------------------------------------------------
 %	RECONSTRUCTED IMAGES
 %----------------------------------------------------------------------------------------
 \begin{block}{Reconstructed B-mode images}
-	
 \newlength{\CohSubFigWidth}
 \newlength{\CohSubFigHeight}
 \setlength{\CohSubFigWidth}{0.24\columnwidth}
@@ -67,7 +67,6 @@
 	\subcaptionbox{\label{fig_numerical_DAS_5}}{\includegraphics[height=\CohSubFigHeight]{Figures/das_dataset_rf_numerical_transmission_1_nbPW_5.pdf}}\hfill%
 	\subcaptionbox{\label{fig_numerical_FISTA}}{\includegraphics[height=\CohSubFigHeight]{Figures/FISTA_dataset_rf_numerical_transmission_1_nbPW_1.pdf}}\hfill%
 	\subcaptionbox{\label{fig_numerical_FISTALP}}{\includegraphics[height=\CohSubFigHeight]{Figures/FISTALP_dataset_rf_numerical_transmission_1_nbPW_1.pdf}}\hfill\null%
-	
 	\hfill%
 	\subcaptionbox{\label{fig_carotid_DAS}}{\includegraphics[height=\CohSubFigHeight]{Figures/das_carotid_cross_expe_dataset_rf_nbPW_1.pdf}}\hfill%
 	\subcaptionbox{\label{fig_carotid_DAS_5}}{\includegraphics[height=\CohSubFigHeight]{Figures/das_carotid_cross_expe_dataset_rf_nbPW_5.pdf}}\hfill%
@@ -76,7 +75,6 @@
 	\caption{Image of the numerical phantom of PICMUS dataset reconstructed with (a) DAS - 1 PW insonification, (b) DAS - 5 PW insonifications, (c) USSR-SA - 1 PW insonification, (c) USSR - $\ell_p$ - 1 PW insonification; Image of the \textit{in-vivo} carotid reconstructed with (e) DAS - 1 PW insonification, (f) DAS - 5 PW insonifications, (g) USSR-SA - 1 PW insonification, (h) USSR-$\ell_p$ - 1 PW insonification.}
 	\label{fig_Bmode}
 \end{figure}
-	
 \end{block}
 \vfill
 
@@ -91,7 +89,7 @@
 			\item Two priors: $\ell_p$-norm in the image domain and $\ell_1$-norm in a sparsity averaging model
 		\end{itemize}
 		\item The proposed approach leads to high-quality at fast rates, with low-memory footprint
-		\item Current work focuses on optimizing the code
+		\item Current work focuses on extending and optimizing the code
 	\end{enumerate}
 \end{block}
 \vfill
